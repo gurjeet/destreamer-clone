@@ -54,6 +54,8 @@ export const enum CLI_ERROR {
     VIDEOURLS_ARG_CONFLICT    = 'Too many URLs sources specified!\n' +
                                 'Please specify a single source, either -i or -f (URLs from file)',
 
+    LOGIN_OPTIONS_CONFLICT    = 'Either specify `username` or `noLogin`, not both',
+
     OUTPUTDIR_ARG_CONFLICT    = 'Too many output arguments specified!\n' +
                                 'Please specify a single output argument, either -o or --outputDirectories.',
 

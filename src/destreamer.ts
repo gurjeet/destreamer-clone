@@ -47,7 +47,7 @@ async function init() {
     }
 }
 
-async function DoInteractiveLogin(url: string, username?: string): Promise<Session> {
+async function DoInteractiveLogin(url: string, noLogin: boolean, username?: string): Promise<Session> {
     const videoId = url.split("/").pop() ?? process.exit(ERROR_CODE.INVALID_VIDEO_ID)
 
     console.log('Launching headless Chrome to perform the OpenID Connect dance...');
@@ -60,11 +60,14 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
     console.log('Navigating to login page...');
 
     await page.goto(url, { waitUntil: 'load' });
-    await page.waitForSelector('input[type="email"]');
 
-    if (username) {
-        await page.keyboard.type(username);
-        await page.click('input[type="submit"]');
+    if (!noLogin) {
+        await page.waitForSelector('input[type="email"]');
+
+        if (username) {
+            await page.keyboard.type(username);
+            await page.click('input[type="submit"]');
+        }
     }
 
     await browser.waitForTarget(target => target.url().includes(videoId), { timeout: 150000 });
@@ -289,7 +292,7 @@ async function main() {
     checkOutDirsUrlsMismatch(outDirs, videoUrls);
     makeOutputDirectories(outDirs); // create all dirs now to prevent ffmpeg panic
 
-    session = tokenCache.Read() ?? await DoInteractiveLogin(videoUrls[0], argv.username);
+    session = tokenCache.Read() ?? await DoInteractiveLogin(videoUrls[0], argv.noLogin, argv.username);
 
     downloadVideo(videoUrls, outDirs, session);
 }

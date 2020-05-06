@@ -62,6 +62,13 @@ export const argv = yargs.options({
         default: false,
         demandOption: false
     },
+    noLogin: {
+        alias: 'nologin',
+        describe: `Don't try to login; the Video URL may be protected by SSO that takes care of authentication.`,
+        type: 'boolean',
+        default: false,
+        demandOption: false
+    },
     vcodec: {
         describe: 'Re-encode video track. Specify FFmpeg codec (e.g. libx265) or set to "none" to disable video.',
         type: 'string',
@@ -94,6 +101,7 @@ export const argv = yargs.options({
 .check(argv => windowsFileExtensionBadBehaviorFix(argv))
 .check(argv => mergeVideoUrlsArguments(argv))
 .check(argv => mergeOutputDirArguments(argv))
+.check(argv => checkLoginOptionConflict(argv))
 .argv;
 
 function hasNoArgs() {
@@ -123,6 +131,16 @@ function checkVideoUrlsArgConflict(argv: any) {
 
     if (argv.videoUrls && argv.videoUrlsFile)
         throw new Error(colors.red(CLI_ERROR.VIDEOURLS_ARG_CONFLICT));
+
+    return true;
+}
+
+function checkLoginOptionConflict(argv: any) {
+    if (hasNoArgs())
+        return true;
+
+    if (argv.username && argv.noLogin)
+        throw new Error(colors.red(CLI_ERROR.LOGIN_OPTIONS_CONFLICT));
 
     return true;
 }
